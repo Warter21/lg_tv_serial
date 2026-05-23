@@ -88,20 +88,14 @@ class RemoteKeyCode(IntEnum):
 @unique
 class Input(IntEnum):
     DTV = 0x00
-    CADTV = 0x01
-    SATELLITE_DTV__ISDB_BS_JAPAN = 0x02
-    ISDB_CS1_JAPAN = 0x03
-    ISDB_CS2_JAPAN = 0x04
-    CATV = 0x11
+    ANALOGUE = 0x10
     AV1 = 0x20
     AV2 = 0x21
-    COMPONENT1 = 0x40
-    COMPONENT2 = 0x41
-    RGB = 0x60
-    HDMI1 = 0x90
-    HDMI2 = 0x91
-    HDMI3 = 0x92
-    HDMI4 = 0x93
+    COMPONENT1 = 0x30
+    COMPONENT2 = 0x31
+    RGB = 0x40
+    HDMI1 = 0x50
+    HDMI2 = 0x51
 
     @classmethod
     def _missing_(cls, value):
@@ -208,12 +202,12 @@ def parse_response(reponse: bytearray) -> Response | None:
             match.group("status"),
             match.group("data"),
         )
-        cmd2 = match.group("cmd2")
+        cmd2 = match.group("cmd2").lower()
         set_id = int(match.group("set_id"), 16)
         status_ok = match.group("status") == "OK"
 
         if not status_ok:
-            logger.warning("Status is '%s', not 'OK', for response: %s", match.group("status"), reponse)
+            logger.debug("Status is '%s', not 'OK', for response: %s", match.group("status"), reponse)
             return None
         
         data = match.group("data")
@@ -248,6 +242,17 @@ class LgTv:
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
 
+    async def _flush_read_buffer(self) -> None:
+        """Drain any stale bytes from the read buffer before sending commands."""
+        try:
+            async with asyncio.timeout(0.3):
+                while True:
+                    data = await self._reader.read(256)
+                    if not data:
+                        break
+        except TimeoutError:
+            pass
+
     async def connect(self, on_disconnect=None):
         """
         `on_disconnect` will be called when it is detected that a connection is not working anymore.
@@ -263,6 +268,7 @@ class LgTv:
             )
 
             # Do something with the connection to make sure it can transfer data
+            await self._flush_read_buffer()
             await self.get_power_on()
 
             # Only install on_disconnect after connection seems to work to avoid triggering it while not really connected
@@ -332,12 +338,12 @@ class LgTv:
                                 logger.debug("parsing data: %s" % response)
                                 result = parse_response(response)
                                 if result and result.command2 != command2:
-                                    # I have seen situations where somehow a response was in the buffer twice so everything got out of sync.
-                                    # Not sure why it happens, just detect and pretend it was a connection error and hope it fixes itself
-                                    # TODO: This needs some more robust handling
-                                    raise ConnectionError(
-                                        "Response not for command that was sent"
+                                    logger.debug(
+                                        "Discarding response for '%s', waiting for '%s'",
+                                        result.command2, command2
                                     )
+                                    response = bytearray()
+                                    continue
 
                                 return result
 

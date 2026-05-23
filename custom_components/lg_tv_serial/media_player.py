@@ -25,21 +25,14 @@ SUPPORTED_MEDIAPLAYER_COMMANDS = (
 
 INPUT_SOURCE_MAPPING = {
     Input.DTV: "Digital TV",
-    Input.CADTV: "Cable Digital TV",
-    Input.SATELLITE_DTV__ISDB_BS_JAPAN: "Satellite TV / ISDB BS (Japan)",
-    Input.ISDB_CS1_JAPAN: "ISDB CS1",
-    Input.ISDB_CS2_JAPAN: "ISDB CS2",
-    Input.CATV: "Cable TV",
+    Input.ANALOGUE: "Analogue TV",
     Input.AV1: "AV 1",
     Input.AV2: "AV 2",
     Input.COMPONENT1: "Component 1",
     Input.COMPONENT2: "Component 2",
     Input.RGB: "RGB",
-    Input.HDMI1: "HDMI1",
-    Input.HDMI2: "HDMI2",
-    Input.HDMI3: "HDMI3",
-    Input.HDMI4: "HDMI4",
-    Input.UNKNOWN: "Unknown",
+    Input.HDMI1: "HDMI 1",
+    Input.HDMI2: "HDMI 2",
 }
 
 # Also add the reverse mapping to SOURCE_INPUT_MAPPING
