@@ -1,4 +1,4 @@
-# LG TV Serial
+# LG TV Serial for LG 42LY95 (other older TVs)
 
 Custom integration for Home Assistant to control LG TVs that support the serial control protocol
 
