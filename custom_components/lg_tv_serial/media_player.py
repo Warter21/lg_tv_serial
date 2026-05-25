@@ -28,6 +28,7 @@ INPUT_SOURCE_MAPPING = {
     Input.ANALOGUE: "Analogue TV",
     Input.AV1: "AV 1",
     Input.AV2: "AV 2",
+    Input.AV3: "AV 3",
     Input.COMPONENT1: "Component 1",
     Input.COMPONENT2: "Component 2",
     Input.RGB: "RGB",

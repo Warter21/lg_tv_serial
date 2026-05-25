@@ -91,6 +91,7 @@ class Input(IntEnum):
     ANALOGUE = 0x10
     AV1 = 0x20
     AV2 = 0x21
+    AV3 = 0x22
     COMPONENT1 = 0x30
     COMPONENT2 = 0x31
     RGB = 0x40
