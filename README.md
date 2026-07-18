@@ -1,12 +1,12 @@
 # LG TV Serial
 
-Custom integration for Home Assistant to control LG TVs that support the serial control protocol
+Custom integration for Home Assistant to control LG TVs that support the serial control protocol. This fork has been modified for the LG 42LY95.
 
 The protocol is [documented by LG here](https://www.lg.com/ca_en/support/product-support/troubleshoot/help-library/cs-CT20098005-20153058982994/). Kudos for LG for making the protocol specification available.
 
 This is a quickly whipped up integration but seems to work fine for me for a while now (mostly to just turn on/off the TV).
 
-I am unsure for what range of TV models this applies, I have a 42LW5400 model from 2011 which has a DB9 serial connector for this protocol. Check the owners manual of your TV (downloadable from LG website) to see if it supports this protocol.
+The original author was unsure for what range of TV models this applies, having tested it on a 42LW5400 model from 2011 which has a DB9 serial connector for this protocol. This fork has been tested and confirmed working on the LG 42LY95. Check the owners manual of your TV (downloadable from LG website) to see if it supports this protocol.
 
 ## Gotchas
 
