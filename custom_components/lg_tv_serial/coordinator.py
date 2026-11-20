@@ -43,6 +43,12 @@ class LgTvCoordinator(DataUpdateCoordinator[CoordinatorData]):
         self.api = api
         self.data:CoordinatorData = CoordinatorData()
         self.config_entry = entry
+        # Some LG models show their volume/input OSD even when these values are
+        # only queried with the documented 0xFF status command.  Read media
+        # state once after the TV comes online, then rely on optimistic updates
+        # for commands sent by this integration.  Repeating these queries every
+        # polling cycle makes the OSD flash continuously.
+        self._media_state_initialized = False
 
     async def _async_update_data(self):
         """Fetch data from API endpoint."""
@@ -51,12 +57,15 @@ class LgTvCoordinator(DataUpdateCoordinator[CoordinatorData]):
         try:
             self.data.power_on = await self.api.get_power_on()
             if self.data.power_on:
-                self.data.mute = await self.api.get_mute()
-                self.data.volume = await self.api.get_volume()
-                self.data.input = await self.api.get_input()
+                if not self._media_state_initialized:
+                    self.data.mute = await self.api.get_mute()
+                    self.data.volume = await self.api.get_volume()
+                    self.data.input = await self.api.get_input()
+                    self._media_state_initialized = True
                 self.data.remote_control_lock = await self.api.get_remote_control_lock()
                 self.data.energy_saving = await self.api.get_energy_saving()
             else:
+                self._media_state_initialized = False
                 self.data.mute = None
                 self.data.volume = None
                 self.data.input = None
