@@ -8,15 +8,15 @@ from custom_components.lg_tv_serial.coordinator import CoordinatorData, LgTvCoor
 
 
 @pytest.mark.asyncio
-async def test_media_state_is_only_polled_once_while_tv_stays_on():
-    """Volume, mute and input queries must not repeatedly trigger the TV OSD."""
+async def test_non_power_state_is_only_polled_once_while_tv_stays_on():
+    """Only power must be polled repeatedly while the TV stays on."""
     api = AsyncMock()
     api.get_power_on.return_value = True
 
     coordinator = object.__new__(LgTvCoordinator)
     coordinator.api = api
     coordinator.data = CoordinatorData()
-    coordinator._media_state_initialized = False
+    coordinator._state_initialized = False
 
     await coordinator._async_update_data()
     await coordinator._async_update_data()
@@ -25,8 +25,8 @@ async def test_media_state_is_only_polled_once_while_tv_stays_on():
     api.get_mute.assert_awaited_once()
     api.get_volume.assert_awaited_once()
     api.get_input.assert_awaited_once()
-    assert api.get_remote_control_lock.await_count == 2
-    assert api.get_energy_saving.await_count == 2
+    api.get_remote_control_lock.assert_awaited_once()
+    api.get_energy_saving.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -38,7 +38,7 @@ async def test_media_state_is_polled_again_after_power_cycle():
     coordinator = object.__new__(LgTvCoordinator)
     coordinator.api = api
     coordinator.data = CoordinatorData()
-    coordinator._media_state_initialized = False
+    coordinator._state_initialized = False
 
     await coordinator._async_update_data()
     await coordinator._async_update_data()
@@ -47,3 +47,5 @@ async def test_media_state_is_polled_again_after_power_cycle():
     assert api.get_mute.await_count == 2
     assert api.get_volume.await_count == 2
     assert api.get_input.await_count == 2
+    assert api.get_remote_control_lock.await_count == 2
+    assert api.get_energy_saving.await_count == 2
