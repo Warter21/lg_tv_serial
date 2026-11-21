@@ -16,9 +16,9 @@ from .lgtv_api import EnergySaving, LgTv
 class LgTvSelectEntityDescription(SelectEntityDescription):
     is_supported: Callable[[LgTv, CoordinatorData], bool] = lambda api, data: True
     is_available: Callable[[LgTv, CoordinatorData], bool] = lambda api, data: True
-    select_option_fn: Callable[[LgTv, str], Coroutine] = None  # type: ignore[assignment]
+    select_option_fn: Callable[[LgTv, CoordinatorData, str], Coroutine] = None  # type: ignore[assignment]
 
-async def select_energy_saving(api: LgTv, option:str) -> None:
+async def select_energy_saving(api: LgTv, data: CoordinatorData, option:str) -> None:
     value = [
         e
         for e in EnergySaving
@@ -27,6 +27,7 @@ async def select_energy_saving(api: LgTv, option:str) -> None:
 
     if len(value) == 1:
         await api.set_energy_saving(value[0])
+        data.energy_saving = value[0]
 
 
 ENTITY_DESCRIPTIONS = [
@@ -89,5 +90,7 @@ class LgTvSelect(CoordinatorEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        await self.entity_description.select_option_fn(self.coordinator.api, option)
-        await self.coordinator.async_request_refresh()
+        await self.entity_description.select_option_fn(
+            self.coordinator.api, self.coordinator.data, option
+        )
+        self.async_write_ha_state()
